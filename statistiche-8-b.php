@@ -43,7 +43,7 @@
         
         <table>
             <thead>
-                <tr> <th>Anno</th> <th>N.libri</th> </tr>
+                <tr> <th>Nome Succursale</th> <th>Nr Prestiti</th> </tr>
             </thead>
             <tbody>
                 <?php
