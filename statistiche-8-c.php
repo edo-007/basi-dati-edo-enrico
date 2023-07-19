@@ -71,6 +71,3 @@ include_once('connessione.php');
     </body>
 
 </html>
-
-    
-    
