@@ -119,9 +119,20 @@
 			<br>
 			<h2> Statistiche </h2>
 
-				a. Numero di libri pubblicati in un determinato anno.
-				b. Numero di prestiti effettuati in una determinata succursale.
-				c. Numero di libri pubblicati per autore.
+				<form action="statistiche-8-a.php" method="post">
+					<label>a. Numero di libri pubblicati in un determinato anno.</label>
+					<input style="display: inline;" type="submit" value= "Cerca">
+				</form>
+				
+				<form action="statistiche-8-b.php" method="post">
+					<label>b. Numero di prestiti effettuati in una determinata succursale.</label>
+					<input style="display: inline;" type="submit" value= "Cerca ">
+				</form>
+			
+				<form action="statistiche-8-c.php" method="post">
+					<label>c. Numero di libri pubblicati per autore.</label>
+					<input style="display: inline;" type="submit" value= "Cerca"  >
+				</form>
 
     </body>
 </html>
