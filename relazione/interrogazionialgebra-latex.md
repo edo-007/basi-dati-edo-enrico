@@ -66,10 +66,12 @@ anno di pubblicazione.
 ` AND l.ID_LIBRO IN ( SELECT ID_L FROM Scritto_Da WHERE ID_A = $id_autore)`  
 ` ORDER BY ANNO_PUBBLICAZIONE";`
 
-$LIBRI\_AUTORE \leftarrow \pi_{<~ID\_L~>} (\sigma_{<~ID\_A~=~id\_autore~>} (Scritto\_Da))$  
-$INFO\_LIBRI \leftarrow Libro \Join_{~<~l.ISBN=i.ISBN~>} ISBN\_Info \Join_{<~ID\_L~=~ID\_LIBRO~>} ID\_LIBRI$
-$OUT \leftarrow \pi_{<~TITOLO,~ANNO\_PUBBLICAZIONE,~LINGUA,~ISBN~>} (INFO\_LIBRI)$ 
-
+$$
+LIBRI\_AUTORE \leftarrow \pi_{<~ID\_L~>} (\sigma_{<~ID\_A~=~id\_autore~>} (Scritto\_Da)) \\  
+INFO\_LIBRI \leftarrow Libro \Join_{~<~l.ISBN=i.ISBN~>} ISBN\_Info \Join_{<~ID\_L~=~ID\_LIBRO~>} ID\_LIBRI \\
+OUT \leftarrow \pi_{<~TITOLO,~ANNO\_PUBBLICAZIONE,~LINGUA,~ISBN~>} (INFO\_LIBRI) \\
+$$
+<br>
 
 __3__ Ricerca degli autori inserendo uno o più parametri (anche parziali), in forma libera o
 eventualmente guidata (per esempio menù a tendina con i soli valori possibili).
@@ -79,10 +81,20 @@ eventualmente guidata (per esempio menù a tendina con i soli valori possibili).
 `WHERE NOME LIKE '$nome_a%' AND COGNOME LIKE '$cognome_a%'` 
 `AND PAESE_NASCITA = $paese`  
 
+$$
+AUTORI\_RICHIESTI \leftarrow \sigma_{<~NOME=nome\_a~\wedge~COGNOME= cognome\_a~\wedge~PAESE\_NASCITA = paese~>}(~Autore~)\\ 
+OUT \leftarrow \pi_{<NOME,~COGNOME,~ID\_AUTORE,~DATA\_NASCITA,~PAESE\_NASCITA>}( AUTORI\_RICHIESTI) \\
+$$
+<br>
+
 __4__ Consultare l’elenco degli utenti della biblioteca (con le informazioni principali).
 
 > `SELECT NOME, COGNOME, MATRICOLA, NUMERO_TELEFONO`
 `                FROM Studente`
+
+$$
+\pi_{<~NOME, COGNOME, MATRICOLA, NUMERO\_TELEFONO~> }(Studente)
+$$
 
 __5__ Ricerca di un utente della biblioteca e il suo storico dei prestiti (compresi quelli in
 corso).
@@ -91,6 +103,11 @@ corso).
 `                    FROM Prestito AS p, Studente AS s, Libro AS l`  
 `                            WHERE MATRICOLA = '$matricola' AND p.MATRICOLA_S = s.MATRICOLA`  
 `                                                       AND p.ID_L = l.ID_LIBRO`  
+
+$$
+JOIN\_PSL \leftarrow ~( Prestito )\Join_{~p.MATRICOLA = s.MATRICOLA}( Studente ) \Join_{~p.ID\_L = l.ID\_LIBRO} (Libro) \\
+OUT \leftarrow \pi_{<~p.ID\_PRESTITO,~p.DATA\_USCITA,~s.COGNOME,~l.ISBN,~l.ID\_LIBRO~>} (JOIN\_PSL)
+$$
 
 __6__ Consultare lo storico dei prestiti comprese le informazioni (sintetiche - nome,
 cognome) sull’utente.  
