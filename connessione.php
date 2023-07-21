@@ -3,7 +3,7 @@
 
     try {
         // Connessione 
-        $link = mysqli_connect("127.0.0.1", "ITO1", "password", "Biblioteca");
+        $link = mysqli_connect("127.0.0.1", "adminEdo", "password1", "Biblioteca");
     } catch (mysqli_sql_exception $e) {
         die("Non posso stabilire la connessione al db: " . $e->getMessage());
     }
