@@ -37,10 +37,8 @@ Enrico Albertini y636728
 ## 4. Interrogazioni delle tracce in SQL con l' equivalente espressione scritta ia Algebra Relazionale 
  
 
-__1__ Ricerca di un libro inserendo il titolo (anche parziale) - nel caso in cui nessun
-parametro venga specificato deve essere presentata la lista completa dei libri
-comprese le informazioni sintetiche del libro: titolo, isbn, in che succursale sono,
-ecc... (sintetiche - nome, cognome) sull’autore.
+__[1]__ 
+Ricerca di un libro inserendo il titolo (anche parziale) - nel caso in cui nessun parametro venga specificato deve essere presentata la lista completa dei libri comprese le informazioni sintetiche del libro: titolo, isbn, in che succursale sono, ecc... (sintetiche - nome, cognome) sull’autore.
 
 > `SELECT i.ISBN, i.TITOLO, i.LINGUA, s.NOME`  
 `FROM ISBN_Info AS i, Libro as l, Succursale as s`  
@@ -56,8 +54,7 @@ $$
 )
 $$ 
 
-__2__ Visualizzazione di tutti i libri di un determinato autore, eventualmente suddivisi per
-anno di pubblicazione.
+__[2]__ Visualizzazione di tutti i libri di un determinato autore, eventualmente suddivisi per anno di pubblicazione.
 
 
 > ` SELECT i.TITOLO, i.ANNO_PUBBLICAZIONE, i.LINGUA, l.ISBN `  
@@ -73,8 +70,8 @@ OUT \leftarrow \pi_{<~TITOLO,~ANNO\_PUBBLICAZIONE,~LINGUA,~ISBN~>} (INFO\_LIBRI)
 $$
 <br>
 
-__3__ Ricerca degli autori inserendo uno o più parametri (anche parziali), in forma libera o
-eventualmente guidata (per esempio menù a tendina con i soli valori possibili).
+__[3]__   
+Ricerca degli autori inserendo uno o più parametri (anche parziali), in forma libera o eventualmente guidata (per esempio menù a tendina con i soli valori possibili).
 
 > `SELECT NOME, COGNOME, ID_AUTORE, DATA_NASCITA, PAESE_NASCITA`  
 `FROM Autore`  
@@ -85,9 +82,12 @@ $$
 AUTORI\_RICHIESTI \leftarrow \sigma_{<~NOME=nome\_a~\wedge~COGNOME= cognome\_a~\wedge~PAESE\_NASCITA = paese~>}(~Autore~)\\ 
 OUT \leftarrow \pi_{<NOME,~COGNOME,~ID\_AUTORE,~DATA\_NASCITA,~PAESE\_NASCITA>}( AUTORI\_RICHIESTI) \\
 $$
+
+
 <br>
 
-__4__ Consultare l’elenco degli utenti della biblioteca (con le informazioni principali).
+__[4]__  
+Consultare l’elenco degli utenti della biblioteca (con le informazioni principali).
 
 > `SELECT NOME, COGNOME, MATRICOLA, NUMERO_TELEFONO`
 `                FROM Studente`
@@ -96,8 +96,11 @@ $$
 \pi_{<~NOME, COGNOME, MATRICOLA, NUMERO\_TELEFONO~> }(Studente)
 $$
 
-__5__ Ricerca di un utente della biblioteca e il suo storico dei prestiti (compresi quelli in
-corso).
+<br>
+
+
+__[5]__  
+Ricerca di un utente della biblioteca e il suo storico dei prestiti (compresi quelli in corso).
 
 > `SELECT p.ID_PRESTITO, p.DATA_USCITA, s.COGNOME, l.ISBN, l.ID_LIBRO`  
 `                    FROM Prestito AS p, Studente AS s, Libro AS l`  
@@ -109,28 +112,70 @@ JOIN\_PSL \leftarrow ~( Prestito )\Join_{~p.MATRICOLA = s.MATRICOLA}( Studente )
 OUT \leftarrow \pi_{<~p.ID\_PRESTITO,~p.DATA\_USCITA,~s.COGNOME,~l.ISBN,~l.ID\_LIBRO~>} (JOIN\_PSL)
 $$
 
-__6__ Consultare lo storico dei prestiti comprese le informazioni (sintetiche - nome,
-cognome) sull’utente.  
+<br>
+
+__[6]__  
+Consultare lo storico dei prestiti comprese le informazioni (sintetiche - nome, cognome) sull’utente.  
 
 > `SELECT p.ID_PRESTITO,p.MATRICOLA_S, p.DATA_USCITA, s.NOME, s.COGNOME`  
 `FROM Prestito AS p, Studente AS s`  
 `WHERE p.MATRICOLA_S = s.MATRICOLA`  
-  
 
-__7__ Ricerca dei prestiti effettuati in un range di date – nel caso in cui non vengano
-inserite date deve mostrare i prossimi in scadenza (quelli che scadranno in futuro)
-comprese le informazioni sintetiche sull’autore.
+$$
+PRESTITI\_UTENTE \leftarrow  (Prestito)~\Join_{~<~p.MATRICOLA = s.MATRICOLA~>} (Studente) \\ 
+OUT \leftarrow ~\pi_{<~p.ID\_PRESTITO,p.MATRICOLA_S,~p.DATA\_USCITA,~s.NOME,~s.COGNOME >} (PRESTITI\_UTENTE)
+$$
+
+<br>
+
+__[7]__  
+Ricerca dei prestiti effettuati in un range di date – nel caso in cui non vengano inserite date deve mostrare i prossimi in scadenza (quelli che scadranno in futuro) comprese le informazioni sintetiche sull’autore.
 
 > `SELECT ID_PRESTITO, MATRICOLA_S, DATA_USCITA FROM Prestito`  
 `WHERE DATA_USCITA >=  '$data_inizio' `  
 `AND DATA_USCITA <= '$data_fine'`  
 
-8. Calcolo di statistiche relative a libri e autori:
-a. Numero di libri pubblicati in un determinato anno.
-b. Numero di prestiti effettuati in una determinata succursale.
-c. Numero di libri pubblicati per autore.
+$$
+IN\_RANGE \leftarrow \sigma_{~<~ DATA\_USCITA~\ge ~data\_inizio ~~\wedge~~DATA\_USCITA~\le~data\_fine~>}(Prestito) \\
+OUT \leftarrow \pi_{<~ID\_PRESTITO, MATRICOLA\_S, DATA\_USCITA~>} (IN\_RANGE)
+$$
 
-(1)
+<br>
+
+__[8]__   
+Statistiche  _(qui abbiamo deciso di utilizzare le join ( per completezza ))_
+
+__[8.a]__ Numero di libri pubblicati in un determinato anno.
+
+> `SELECT i.ANNO_PUBBLICAZIONE AS anno, COUNT(l.ID_LIBRO) AS numero_libri`  
+`                FROM Libro AS l, ISBN_Info AS i `  
+`                    WHERE i.ISBN = l.ISBN AND i.ANNO_PUBBLICAZIONE`  
+`                        GROUP BY i.ANNO_PUBBLICAZIONE ` 
+
+$$
+$$
+<br>
+
+__[8.b]__ Numero di prestiti effettuati in una determinata succursale.  
+
+> `SELECT s.NOME AS nome_succ, COUNT(p.ID_PRESTITO) AS numero_prestiti`  
+`                        FROM Succursale s`  
+`                            LEFT JOIN Libro l ON s.ID_SUCC = l.ID_S`  
+`                                LEFT JOIN Prestito p ON l.ID_LIBRO = p.ID_L`  
+`                                    GROUP BY s.NOME, s.ID_SUCC`  
+
+$$
+$$
+<br>
 
 
-$ $
+__[8.c]__ Numero di libri pubblicati per autore.  
+
+> `SELECT A.ID_AUTORE, A.NOME AS nome, A.COGNOME AS cognome, COUNT(L.ID_LIBRO) AS numero_libri `  
+`FROM Autore A`  
+`LEFT JOIN Scritto_Da SD ON A.ID_AUTORE = SD.ID_A`  
+`LEFT JOIN Libro L ON SD.ID_L = L.ID_LIBRO`  
+`GROUP BY A.ID_AUTORE, A.NOME, A.COGNOME`  
+
+$$
+$$
