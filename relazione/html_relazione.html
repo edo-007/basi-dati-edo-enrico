@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>interrogazionialgebra-latex</title>
+  <style type="text/css">
+      code{white-space: pre-wrap;}
+      span.smallcaps{font-variant: small-caps;}
+      span.underline{text-decoration: underline;}
+      div.column{display: inline-block; vertical-align: top; width: 50%;}
+  </style>
+</head>
+<body>
+<h1 id="relazione-progetto-basi-dati">Relazione Progetto Basi dati</h1>
+<p>Edoardo Ponsanesi 166205<br />
+Enrico Albertini y636728</p>
+<!-- @import "[TOC]" {cmd="toc" depthFrom=1 depthTo=6 orderedList=false} -->
+<!-- code_chunk_output -->
+<ul>
+<li><a href="#relazione-progetto-basi-dati">Relazione Progetto Basi dati</a>
+<ul>
+<li><a href="#1-definizione-del-problema">1. Definizione del problema</a></li>
+<li><a href="#2-modello-er">2. Modello ER</a></li>
+<li><a href="#3-modello-relazionale-in-terza-forma-normale">3. Modello relazionale in terza forma normale</a></li>
+<li><a href="#4-interrogazioni-delle-tracce-in-sql-con-l-equivalente-espressione-scritta-ia-algebra-relazionale">4. Interrogazioni delle tracce in SQL con l’ equivalente espressione scritta ia Algebra Relazionale</a></li>
+</ul></li>
+</ul>
+<!-- /code_chunk_output -->
+<p> </p>
+<p> </p>
+<p> </p>
+<h2 id="definizione-del-problema">1. Definizione del problema</h2>
+<pre><code>Definizion</code></pre>
+<h2 id="modello-er">2. Modello ER</h2>
+<pre><code> Modello ER</code></pre>
+<h2 id="modello-relazionale-in-terza-forma-normale">3. Modello relazionale in terza forma normale</h2>
+<pre><code>Qualcosa</code></pre>
+<h2 id="interrogazioni-delle-tracce-in-sql-con-l-equivalente-espressione-scritta-ia-algebra-relazionale">4. Interrogazioni delle tracce in SQL con l’ equivalente espressione scritta ia Algebra Relazionale</h2>
+<p><strong>1</strong> Ricerca di un libro inserendo il titolo (anche parziale) - nel caso in cui nessun parametro venga specificato deve essere presentata la lista completa dei libri comprese le informazioni sintetiche del libro: titolo, isbn, in che succursale sono, ecc… (sintetiche - nome, cognome) sull’autore.</p>
+<blockquote>
+<p><code>SELECT i.ISBN, i.TITOLO, i.LINGUA, s.NOME</code><br />
+<code>FROM ISBN_Info AS i, Libro as l, Succursale as s</code><br />
+<code>WHERE i.ISBN = l.ISBN AND i.TITOLO LIKE '%$nome_libro%'</code><br />
+<code>AND l.ID_S = s.ID_SUCC</code></p>
+</blockquote>
+<p><strong>2</strong> Visualizzazione di tutti i libri di un determinato autore, eventualmente suddivisi per anno di pubblicazione.</p>
+<blockquote>
+<p><code>SELECT i.TITOLO, i.ANNO_PUBBLICAZIONE, i.LINGUA, l.ISBN</code><br />
+<code>FROM Libro AS l, ISBN_Info AS i</code><br />
+<code>WHERE l.ISBN = i.ISBN</code><br />
+<code>AND l.ID_LIBRO IN ( SELECT ID_L FROM Scritto_Da WHERE ID_A = $id_autore)</code><br />
+<code>ORDER BY ANNO_PUBBLICAZIONE";</code></p>
+</blockquote>
+<p><strong>3</strong> Ricerca degli autori inserendo uno o più parametri (anche parziali), in forma libera o eventualmente guidata (per esempio menù a tendina con i soli valori possibili).</p>
+<blockquote>
+<p><code>SELECT NOME, COGNOME, ID_AUTORE, DATA_NASCITA, PAESE_NASCITA</code><br />
+<code>FROM Autore</code><br />
+<code>WHERE NOME LIKE '$nome_a%' AND COGNOME LIKE '$cognome_a%'</code> <code>AND PAESE_NASCITA = $paese</code></p>
+</blockquote>
+<p><strong>4</strong> Consultare l’elenco degli utenti della biblioteca (con le informazioni principali).</p>
+<blockquote>
+<p><code>SELECT NOME, COGNOME, MATRICOLA, NUMERO_TELEFONO</code> <code>FROM Studente</code></p>
+</blockquote>
+<p><strong>5</strong> Ricerca di un utente della biblioteca e il suo storico dei prestiti (compresi quelli in corso).</p>
+<blockquote>
+<p><code>SELECT p.ID_PRESTITO, p.DATA_USCITA, s.COGNOME, l.ISBN, l.ID_LIBRO</code><br />
+<code>FROM Prestito AS p, Studente AS s, Libro AS l</code><br />
+<code>WHERE MATRICOLA = '$matricola' AND p.MATRICOLA_S = s.MATRICOLA</code><br />
+<code>AND p.ID_L = l.ID_LIBRO</code></p>
+</blockquote>
+<p><strong>6</strong> Consultare lo storico dei prestiti comprese le informazioni (sintetiche - nome, cognome) sull’utente.</p>
+<blockquote>
+<p><code>SELECT p.ID_PRESTITO,p.MATRICOLA_S, p.DATA_USCITA, s.NOME, s.COGNOME</code><br />
+<code>FROM Prestito AS p, Studente AS s</code><br />
+<code>WHERE p.MATRICOLA_S = s.MATRICOLA</code></p>
+</blockquote>
+<p><strong>7</strong> Ricerca dei prestiti effettuati in un range di date – nel caso in cui non vengano inserite date deve mostrare i prossimi in scadenza (quelli che scadranno in futuro) comprese le informazioni sintetiche sull’autore.</p>
+<blockquote>
+<p><code>SELECT ID_PRESTITO, MATRICOLA_S, DATA_USCITA FROM Prestito</code><br />
+<code>WHERE DATA_USCITA &gt;=  '$data_inizio'</code><br />
+<code>AND DATA_USCITA &lt;= '$data_fine'</code></p>
+</blockquote>
+<ol start="8" type="1">
+<li>Calcolo di statistiche relative a libri e autori:</li>
+</ol>
+<ol type="a">
+<li>Numero di libri pubblicati in un determinato anno.</li>
+<li>Numero di prestiti effettuati in una determinata succursale.</li>
+<li>Numero di libri pubblicati per autore.</li>
+</ol>
+<ol type="1">
+<li></li>
+</ol>
+<p>$ $</p>
+</body>
+</html>

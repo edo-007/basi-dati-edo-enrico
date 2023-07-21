@@ -1,19 +1,41 @@
 
 
-## Relazione Progetto Basi dati
+# Relazione Progetto Basi dati
 
-Edoardo Ponsanesi 166205
+Edoardo Ponsanesi 166205  
 Enrico Albertini y636728
 
-Per quanto riguarda la relazione, il minimo che viene richiesto è quello di includere:  
 
-> 1. Definizione del problema;  
-> 2. Modello ER;  
-> 3. Modello Relazionale in terza forma normale con tutti i vincoli per, e tra, le varie relazioni risultanti;  
-> 4. Le interrogazioni delle tracce (al punto 2), in SQL con l’equivalente espressione scritta in Algebra Relazionale (senza usare l’operatore di divisione);
+<!-- /code_chunk_output -->
 
 
-* * *
+&nbsp;   
+
+&nbsp;   
+
+&nbsp;   
+
+
+
+
+
+
+## 1. Definizione del problema
+
+    Definizion
+
+
+## 2. Modello ER
+     
+     Modello ER
+
+
+## 3. Modello relazionale in terza forma normale 
+
+    Qualcosa
+
+## 4. Interrogazioni delle tracce in SQL con l' equivalente espressione scritta ia Algebra Relazionale 
+ 
 
 __1__ Ricerca di un libro inserendo il titolo (anche parziale) - nel caso in cui nessun
 parametro venga specificato deve essere presentata la lista completa dei libri
@@ -26,6 +48,13 @@ ecc... (sintetiche - nome, cognome) sull’autore.
 `AND l.ID_S = s.ID_SUCC`  
 
 
+$$ 
+\pi_{(ISBN,TITOLO,LINGUA,NOME)} (
+   \sigma_{(TITOLO~LIKE~nomeLibro) \wedge (ID\_S~=~ID\_SUCC)}(
+      ISBN\_Info \Join Libro \Join Succursale
+   )
+)
+$$ 
 
 __2__ Visualizzazione di tutti i libri di un determinato autore, eventualmente suddivisi per
 anno di pubblicazione.
@@ -35,7 +64,11 @@ anno di pubblicazione.
 ` FROM Libro AS l, ISBN_Info AS i`  
 ` WHERE l.ISBN = i.ISBN `  
 ` AND l.ID_LIBRO IN ( SELECT ID_L FROM Scritto_Da WHERE ID_A = $id_autore)`  
-` ORDER BY ANNO_PUBBLICAZIONE";`  
+` ORDER BY ANNO_PUBBLICAZIONE";`
+
+$LIBRI\_AUTORE \leftarrow \pi_{<~ID\_L~>} (\sigma_{<~ID\_A~=~id\_autore~>} (Scritto\_Da))$  
+$INFO\_LIBRI \leftarrow Libro \Join_{~<~l.ISBN=i.ISBN~>} ISBN\_Info \Join_{<~ID\_L~=~ID\_LIBRO~>} ID\_LIBRI$
+$OUT \leftarrow \pi_{<~TITOLO,~ANNO\_PUBBLICAZIONE,~LINGUA,~ISBN~>} (INFO\_LIBRI)$ 
 
 
 __3__ Ricerca degli autori inserendo uno o più parametri (anche parziali), in forma libera o
@@ -65,6 +98,7 @@ cognome) sull’utente.
 > `SELECT p.ID_PRESTITO,p.MATRICOLA_S, p.DATA_USCITA, s.NOME, s.COGNOME`  
 `FROM Prestito AS p, Studente AS s`  
 `WHERE p.MATRICOLA_S = s.MATRICOLA`  
+  
 
 __7__ Ricerca dei prestiti effettuati in un range di date – nel caso in cui non vengano
 inserite date deve mostrare i prossimi in scadenza (quelli che scadranno in futuro)
