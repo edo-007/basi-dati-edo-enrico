@@ -177,5 +177,16 @@ __[8.c]__ Numero di libri pubblicati per autore.
 `LEFT JOIN Libro L ON SD.ID_L = L.ID_LIBRO`  
 `GROUP BY A.ID_AUTORE, A.NOME, A.COGNOME`  
 
+
+La __prima LEFT JOIN__ collega la tabella "Autore" con la tabella "Scritto_Da" utilizzando la condizione __A.ID_AUTORE = SD.ID_A__ . Questo collegamento ci consente di associare gli autori ai loro scritti.   
+La __seconda "LEFT JOIN"__ (_tra ScrittoDa e Libro_) ci consente di associare ogni libro con i corrispettivi scrittori.
+
+La clausola __GROUP BY__ raggruppa i risultati in base all'ID dell'autore, al nome e al cognome dell'autore. 
+Posso ora calcolare il conteggio dei libri scritti da ciascun autore tramite la funzione di aggregazione __COUNT__.
+
+- Utilizziamo la __left join__ invece che la __join naturale__ in modo tale che __tutti__ gli autori vengano inclusi nella query( _anche se non hanno scritto alcun libro_ ).  
+
+- Gli autori che non hanno scritto alcun libro compariranno ugualmente nel risultato _( con numero libri = 0 )_.  
+
 $$
 $$
