@@ -1,24 +1,44 @@
 
 
-## Relazione Progetto Basi dati
+# Relazione Progetto Basi dati
 
-Edoardo Ponsanesi 166205
+Edoardo Ponsanesi 166205  
 Enrico Albertini y636728
 
-Per quanto riguarda la relazione, il minimo che viene richiesto è quello di includere:  
 
-> 1. Definizione del problema;  
-> 2. Modello ER;  
-> 3. Modello Relazionale in terza forma normale con tutti i vincoli per, e tra, le varie relazioni risultanti;  
-> 4. Le interrogazioni delle tracce (al punto 2), in SQL con l’equivalente espressione scritta in Algebra Relazionale (senza usare l’operatore di divisione);
+<!-- /code_chunk_output -->
 
 
-* * *
+&nbsp;   
 
-__1__ Ricerca di un libro inserendo il titolo (anche parziale) - nel caso in cui nessun
-parametro venga specificato deve essere presentata la lista completa dei libri
-comprese le informazioni sintetiche del libro: titolo, isbn, in che succursale sono,
-ecc... (sintetiche - nome, cognome) sull’autore.
+&nbsp;   
+
+&nbsp;   
+
+
+
+
+
+
+## 1. Definizione del problema
+
+    Definizion
+
+
+## 2. Modello ER
+     
+     Modello ER
+
+
+## 3. Modello relazionale in terza forma normale 
+
+    Qualcosa
+
+## 4. Interrogazioni delle tracce in SQL con l' equivalente espressione scritta ia Algebra Relazionale 
+ 
+
+__[1]__ 
+Ricerca di un libro inserendo il titolo (anche parziale) - nel caso in cui nessun parametro venga specificato deve essere presentata la lista completa dei libri comprese le informazioni sintetiche del libro: titolo, isbn, in che succursale sono, ecc... (sintetiche - nome, cognome) sull’autore.
 
 > `SELECT i.ISBN, i.TITOLO, i.LINGUA, s.NOME`  
 `FROM ISBN_Info AS i, Libro as l, Succursale as s`  
@@ -26,60 +46,147 @@ ecc... (sintetiche - nome, cognome) sull’autore.
 `AND l.ID_S = s.ID_SUCC`  
 
 
+$$ 
+\pi_{(ISBN,TITOLO,LINGUA,NOME)} (
+   \sigma_{(TITOLO~LIKE~nomeLibro) \wedge (ID\_S~=~ID\_SUCC)}(
+      ISBN\_Info \Join Libro \Join Succursale
+   )
+)
+$$ 
 
-__2__ Visualizzazione di tutti i libri di un determinato autore, eventualmente suddivisi per
-anno di pubblicazione.
+__[2]__ Visualizzazione di tutti i libri di un determinato autore, eventualmente suddivisi per anno di pubblicazione.
 
 
 > ` SELECT i.TITOLO, i.ANNO_PUBBLICAZIONE, i.LINGUA, l.ISBN `  
 ` FROM Libro AS l, ISBN_Info AS i`  
 ` WHERE l.ISBN = i.ISBN `  
 ` AND l.ID_LIBRO IN ( SELECT ID_L FROM Scritto_Da WHERE ID_A = $id_autore)`  
-` ORDER BY ANNO_PUBBLICAZIONE";`  
+` ORDER BY ANNO_PUBBLICAZIONE";`
 
+$$
+LIBRI\_AUTORE \leftarrow \pi_{<~ID\_L~>} (\sigma_{<~ID\_A~=~id\_autore~>} (Scritto\_Da)) \\  
+INFO\_LIBRI \leftarrow Libro \Join_{~<~l.ISBN=i.ISBN~>} ISBN\_Info \Join_{<~ID\_L~=~ID\_LIBRO~>} ID\_LIBRI \\
+OUT \leftarrow \pi_{<~TITOLO,~ANNO\_PUBBLICAZIONE,~LINGUA,~ISBN~>} (INFO\_LIBRI) \\
+$$
+<br>
 
-__3__ Ricerca degli autori inserendo uno o più parametri (anche parziali), in forma libera o
-eventualmente guidata (per esempio menù a tendina con i soli valori possibili).
+__[3]__   
+Ricerca degli autori inserendo uno o più parametri (anche parziali), in forma libera o eventualmente guidata (per esempio menù a tendina con i soli valori possibili).
 
 > `SELECT NOME, COGNOME, ID_AUTORE, DATA_NASCITA, PAESE_NASCITA`  
 `FROM Autore`  
 `WHERE NOME LIKE '$nome_a%' AND COGNOME LIKE '$cognome_a%'` 
 `AND PAESE_NASCITA = $paese`  
 
-__4__ Consultare l’elenco degli utenti della biblioteca (con le informazioni principali).
+$$
+AUTORI\_RICHIESTI \leftarrow \sigma_{<~NOME=nome\_a~\wedge~COGNOME= cognome\_a~\wedge~PAESE\_NASCITA = paese~>}(~Autore~)\\ 
+OUT \leftarrow \pi_{<NOME,~COGNOME,~ID\_AUTORE,~DATA\_NASCITA,~PAESE\_NASCITA>}( AUTORI\_RICHIESTI) \\
+$$
+
+
+<br>
+
+__[4]__  
+Consultare l’elenco degli utenti della biblioteca (con le informazioni principali).
 
 > `SELECT NOME, COGNOME, MATRICOLA, NUMERO_TELEFONO`
 `                FROM Studente`
 
-__5__ Ricerca di un utente della biblioteca e il suo storico dei prestiti (compresi quelli in
-corso).
+$$
+\pi_{<~NOME, COGNOME, MATRICOLA, NUMERO\_TELEFONO~> }(Studente)
+$$
+
+<br>
+
+
+__[5]__  
+Ricerca di un utente della biblioteca e il suo storico dei prestiti (compresi quelli in corso).
 
 > `SELECT p.ID_PRESTITO, p.DATA_USCITA, s.COGNOME, l.ISBN, l.ID_LIBRO`  
 `                    FROM Prestito AS p, Studente AS s, Libro AS l`  
 `                            WHERE MATRICOLA = '$matricola' AND p.MATRICOLA_S = s.MATRICOLA`  
 `                                                       AND p.ID_L = l.ID_LIBRO`  
 
-__6__ Consultare lo storico dei prestiti comprese le informazioni (sintetiche - nome,
-cognome) sull’utente.  
+$$
+JOIN\_PSL \leftarrow ~( Prestito )\Join_{~p.MATRICOLA = s.MATRICOLA}( Studente ) \Join_{~p.ID\_L = l.ID\_LIBRO} (Libro) \\
+OUT \leftarrow \pi_{<~p.ID\_PRESTITO,~p.DATA\_USCITA,~s.COGNOME,~l.ISBN,~l.ID\_LIBRO~>} (JOIN\_PSL)
+$$
+
+<br>
+
+__[6]__  
+Consultare lo storico dei prestiti comprese le informazioni (sintetiche - nome, cognome) sull’utente.  
 
 > `SELECT p.ID_PRESTITO,p.MATRICOLA_S, p.DATA_USCITA, s.NOME, s.COGNOME`  
 `FROM Prestito AS p, Studente AS s`  
 `WHERE p.MATRICOLA_S = s.MATRICOLA`  
 
-__7__ Ricerca dei prestiti effettuati in un range di date – nel caso in cui non vengano
-inserite date deve mostrare i prossimi in scadenza (quelli che scadranno in futuro)
-comprese le informazioni sintetiche sull’autore.
+$$
+PRESTITI\_UTENTE \leftarrow  (Prestito)~\Join_{~<~p.MATRICOLA = s.MATRICOLA~>} (Studente) \\ 
+OUT \leftarrow ~\pi_{<~p.ID\_PRESTITO,p.MATRICOLA_S,~p.DATA\_USCITA,~s.NOME,~s.COGNOME >} (PRESTITI\_UTENTE)
+$$
+
+<br>
+
+__[7]__  
+Ricerca dei prestiti effettuati in un range di date – nel caso in cui non vengano inserite date deve mostrare i prossimi in scadenza (quelli che scadranno in futuro) comprese le informazioni sintetiche sull’autore.
 
 > `SELECT ID_PRESTITO, MATRICOLA_S, DATA_USCITA FROM Prestito`  
 `WHERE DATA_USCITA >=  '$data_inizio' `  
 `AND DATA_USCITA <= '$data_fine'`  
 
-8. Calcolo di statistiche relative a libri e autori:
-a. Numero di libri pubblicati in un determinato anno.
-b. Numero di prestiti effettuati in una determinata succursale.
-c. Numero di libri pubblicati per autore.
+$$
+IN\_RANGE \leftarrow \sigma_{~<~ DATA\_USCITA~\ge ~data\_inizio ~~\wedge~~DATA\_USCITA~\le~data\_fine~>}(Prestito) \\
+OUT \leftarrow \pi_{<~ID\_PRESTITO, MATRICOLA\_S, DATA\_USCITA~>} (IN\_RANGE)
+$$
 
-(1)
+<br>
+
+__[8]__   
+Statistiche  _(qui abbiamo deciso di utilizzare le join ( per completezza ))_
+
+__[8.a]__ Numero di libri pubblicati in un determinato anno.
+
+> `SELECT i.ANNO_PUBBLICAZIONE AS anno, COUNT(l.ID_LIBRO) AS numero_libri`  
+`                FROM Libro AS l, ISBN_Info AS i `  
+`                    WHERE i.ISBN = l.ISBN AND i.ANNO_PUBBLICAZIONE`  
+`                        GROUP BY i.ANNO_PUBBLICAZIONE ` 
+
+$$
+$$
+<br>
+
+__[8.b]__ Numero di prestiti effettuati in una determinata succursale.  
+
+> `SELECT s.NOME AS nome_succ, COUNT(p.ID_PRESTITO) AS numero_prestiti`  
+`                        FROM Succursale s`  
+`                            LEFT JOIN Libro l ON s.ID_SUCC = l.ID_S`  
+`                                LEFT JOIN Prestito p ON l.ID_LIBRO = p.ID_L`  
+`                                    GROUP BY s.NOME, s.ID_SUCC`  
+
+$$
+$$
+<br>
 
 
-$ $
+__[8.c]__ Numero di libri pubblicati per autore.  
+
+> `SELECT A.ID_AUTORE, A.NOME AS nome, A.COGNOME AS cognome, COUNT(L.ID_LIBRO) AS numero_libri `  
+`FROM Autore A`  
+`LEFT JOIN Scritto_Da SD ON A.ID_AUTORE = SD.ID_A`  
+`LEFT JOIN Libro L ON SD.ID_L = L.ID_LIBRO`  
+`GROUP BY A.ID_AUTORE, A.NOME, A.COGNOME`  
+
+
+La __prima LEFT JOIN__ collega la tabella "Autore" con la tabella "Scritto_Da" utilizzando la condizione __A.ID_AUTORE = SD.ID_A__ . Questo collegamento ci consente di associare gli autori ai loro scritti.   
+La __seconda "LEFT JOIN"__ (_tra ScrittoDa e Libro_) ci consente di associare ogni libro con i corrispettivi scrittori.
+
+La clausola __GROUP BY__ raggruppa i risultati in base all'ID dell'autore, al nome e al cognome dell'autore. 
+Posso ora calcolare il conteggio dei libri scritti da ciascun autore tramite la funzione di aggregazione __COUNT__.
+
+- Utilizziamo la __left join__ invece che la __join naturale__ in modo tale che __tutti__ gli autori vengano inclusi nella query( _anche se non hanno scritto alcun libro_ ).  
+
+- Gli autori che non hanno scritto alcun libro compariranno ugualmente nel risultato _( con numero libri = 0 )_.  
+
+$$
+$$

@@ -141,13 +141,21 @@
 					<label>c. Numero di libri pubblicati per autore.</label>
 					<input style="display: inline;" type="submit" value= "Cerca"  >
 				</form>
+			
+			<hr>
+			<h2>Interrogazioni aggiuntive </h2>
+			
 			<br>
-			<h2>Ranking top 5 studenti per numero di prestiti</h2>
+			<form action="ranking-studenti-5.php" method="post">
+				<label>1. Classifica dei 5 studenti che hanno effettuato piu' prestiti a livello storico</label>
+				<input type="submit" value= "Vai alla classifica">
+			</form>
+			<br>
 			<form action="ranking-studenti-5.php" method="post">
 				<label>PREMI PER AVERE LA CLASSIFICA DEI 5 STUDENTI CHE HANNO EFFETTUATO PIU' PRESTITI A LIVELLO STORICO</label>
-				<br>
 				<input style="display: inline;" type="submit" value= "Cerca">
 			</form>
+
 			<h2>Ranking top 5 succursali per numero di libri in una lingua specificata</h2>
 			<form action ="succursale-lingua.php" method="post">
 				<select name="lingua">
@@ -159,5 +167,5 @@
 					} ?>
 				<input type="submit" value= "Cerca">
 			</form>
-    </body>
+		</body>
 </html>
