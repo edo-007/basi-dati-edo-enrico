@@ -11,7 +11,15 @@
 		echo "Si è verificato un errore: " . mysqli_error($link);
 		exit;
 	}
-    
+	$query_lingua = "SELECT DISTINCT LINGUA FROM Libro as L,ISBN_Info as I
+						WHERE L.ISBN = I.ISBN
+							ORDER BY LINGUA
+						;";
+	$result_lingua = mysqli_query($link, $query_lingua);
+	if (!$result_lingua) {
+		echo "Si è verificato un errore: " . mysqli_error($link);
+		exit;
+	}
 
 ?>
 
@@ -137,7 +145,19 @@
 			<h2>Ranking top 5 studenti per numero di prestiti</h2>
 			<form action="ranking-studenti-5.php" method="post">
 				<label>PREMI PER AVERE LA CLASSIFICA DEI 5 STUDENTI CHE HANNO EFFETTUATO PIU' PRESTITI A LIVELLO STORICO</label>
+				<br>
 				<input style="display: inline;" type="submit" value= "Cerca">
+			</form>
+			<h2>Ranking top 5 succursali per numero di libri in una lingua specificata</h2>
+			<form action ="succursale-lingua.php" method="post">
+				<select name="lingua">
+					<?php
+					while ($row = mysqli_fetch_array($result_lingua)) 
+					{ ?> 
+						<option value="<?php echo "$row[LINGUA]" ?>"><?php echo "$row[LINGUA]" ?> </option> 
+					<?php 
+					} ?>
+				<input type="submit" value= "Cerca">
 			</form>
     </body>
 </html>

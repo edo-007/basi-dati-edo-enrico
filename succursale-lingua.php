@@ -3,19 +3,19 @@
 
     include_once('connessione.php'); 
 
-// a. Numero di libri pubblicati in un determinato anno.
-
-    $sql = "select  s.nome, s.cognome,s.matricola, COUNT(p.ID_PRESTITO) as NR_PRESTITI
-	    FROM Prestito as p, Studente as s
-		    WHERE p.MATRICOLA_S = s.MATRICOLA
-			    GROUP BY p.MATRICOLA_S
-				    ORDER BY NR_PRESTITI DESC;";
+// succursali ordinate per numero di libri in una determinata lingua
+    $lingua =$_POST["lingua"];
+    echo "<h1>$lingua</h1>";
+    $sql = "select S.NOME, S.VIA, S.CIVICO, COUNT(L.ID_LIBRO)
+	    FROM Succursale as S, Libro as L, ISBN_Info I
+		    WHERE L.ID_S = S.ID_SUCC AND I.ISBN = L.ISBN AND I.LINGUA = \"$lingua\"
+			    GROUP BY S.ID_SUCC";
 
     $result = mysqli_query($link, $sql);
     if (!$result) {
         echo "Si è verificato un errore: " . mysqli_error($link);
-        exit;
-}
+        exit;   
+    }
 
 mysqli_close($link);
 
@@ -27,7 +27,7 @@ mysqli_close($link);
     <head>
         <meta charset="utf-8">
 		        
-		<title>Cerca Libro</title>
+		<title></title>
 		
 		<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/water.css@2/out/water.css">
 
@@ -39,24 +39,28 @@ mysqli_close($link);
     </head>
     
     <body>
-
-		<h2> Classifica dei 5 studenti che hanno effettuato più prestiti</h2> 
+		<h2> Nr di Libri in <?php echo $lingua;?></h2> 
         
         <table>
             <thead>
-                <tr> <th>Nome</th> <th>Cognome</th> <th>Matricola</th><th> Nr.Prestiti Effettuati</th> </tr>
+                <tr> <th>ID Succursale</th> <th>Via</th> <th>Civico</th><th>Nr. Libri in</th> </tr>
             </thead>
             <tbody>
                 <?php
-                while ($row = mysqli_fetch_array($result)) 
-                { ?> 
-                    <tr><td> <?php echo $row[0] ?> </td>
+                $i = 0;
+                while ($row = mysqli_fetch_array($result) and $i<=5) 
+                {$i++; ?> 
+                    <tr><td> <?php echo $row[0] ?></td>
                         <td> <?php echo $row[1] ?></td> 
                         <td> <?php echo $row[2] ?></td> 
                         <td> <?php echo $row[3] ?></td> 
                     </tr>
                 <?php 
-                } ?>
+                } 
+                if($i < 5){
+                    echo "<br>abbiamo solo la top $i delle facoltà con libri in $lingua, visto che essi sono presenti solo il $i facoltà";
+                }
+                ?>
 
                 <form  action="index.php" method="post">
 				    <input type="submit" value= "◄ Home">
