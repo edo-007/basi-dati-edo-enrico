@@ -159,10 +159,20 @@ $$
 __[8.b]__ Numero di prestiti effettuati in una determinata succursale.  
 
 > `SELECT s.NOME AS nome_succ, COUNT(p.ID_PRESTITO) AS numero_prestiti`  
-`                        FROM Succursale s`  
-`                            LEFT JOIN Libro l ON s.ID_SUCC = l.ID_S`  
-`                                LEFT JOIN Prestito p ON l.ID_LIBRO = p.ID_L`  
-`                                    GROUP BY s.NOME, s.ID_SUCC`  
+`FROM Succursale s`  
+`LEFT JOIN Libro l ON s.ID_SUCC = l.ID_S`  
+`LEFT JOIN Prestito p ON l.ID_LIBRO = p.ID_L`  
+`GROUP BY s.NOME, s.ID_SUCC`  
+
+La __prima LEFT JOIN__ Questa parte esegue una LEFT JOIN tra Succursale e Libro (_sulle colonne ID_S e ID_SUCC rispettivamente_ ). Questa unione combina i dati delle succursali con i libri corrispondenti nella tabella "Libro". 
+- Se non ci sono libri corrispondenti, la succursale sarà comunque inclusa nel risultato.
+
+La __seconda LEFT JOIN__  Combina i dati di Libro con le istanze di Prestito corrispondente. 
+
+- Se non ci sono prestiti corrispondenti per un libro, il libro sarà comunque incluso nel risultato.
+
+Infinie la __GROUP_BY__ raggruppa il risultato per NOME (della succursale) e ID_SUCC.  
+Possiamo quidni usare __COUNT__ per calcolare il numero di prestiti per ogni succursale.
 
 $$
 $$
