@@ -22,17 +22,33 @@ Enrico Albertini y636728
 
 ## 1. Definizione del problema
 
-    Definizion
+Immagine Modello ER
+
+
+
+Immagine schema Pre-Normalizzazione
+
+
+
+I
+
+
+
+
+
 
 
 ## 2. Modello ER
      
-     Modello ER
+![Modello ER](/relazione/immagini/image1.tmp)
 
 
 ## 3. Modello relazionale in terza forma normale 
 
-    Qualcosa
+![Modello ER](/relazione/immagini/image2.tmp)
+![Modello ER](/relazione/immagini/image3.tmp)
+
+    
 
 ## 4. Interrogazioni delle tracce in SQL con l' equivalente espressione scritta ia Algebra Relazionale 
  
@@ -47,10 +63,9 @@ Ricerca di un libro inserendo il titolo (anche parziale) - nel caso in cui nessu
 
 
 $$ 
+\rho_i (ISBN\_Info),~~ \rho_l (Libro),~~ \rho_s (Succursale) \\
 \pi_{(ISBN,TITOLO,LINGUA,NOME)} (
-   \sigma_{(TITOLO~LIKE~nomeLibro) \wedge (ID\_S~=~ID\_SUCC)}(
-      ISBN\_Info \Join Libro \Join Succursale
-   )
+    ISBN\_Info \Join_{~<i.ISBN = l.ISBN~\wedge~i.TITOLO = nome\_libro>} Libro \Join_{~<l.ID\_S = s.ID\_SUCC>} Succursale
 )
 $$ 
 
@@ -64,8 +79,9 @@ __[2]__ Visualizzazione di tutti i libri di un determinato autore, eventualmente
 ` ORDER BY ANNO_PUBBLICAZIONE";`
 
 $$
+\rho_l(Libro),~~ \rho_l(Libro) \\
 LIBRI\_AUTORE \leftarrow \pi_{<~ID\_L~>} (\sigma_{<~ID\_A~=~id\_autore~>} (Scritto\_Da)) \\  
-INFO\_LIBRI \leftarrow Libro \Join_{~<~l.ISBN=i.ISBN~>} ISBN\_Info \Join_{<~ID\_L~=~ID\_LIBRO~>} ID\_LIBRI \\
+INFO\_LIBRI \leftarrow Libro \Join_{~<~l.ISBN=i.ISBN~>} ISBN\_Info \Join_{<~ID\_L~=~ID\_LIBRO~>} LIBRI\_AUTORE \\
 OUT \leftarrow \pi_{<~TITOLO,~ANNO\_PUBBLICAZIONE,~LINGUA,~ISBN~>} (INFO\_LIBRI) \\
 $$
 <br>
@@ -108,7 +124,8 @@ Ricerca di un utente della biblioteca e il suo storico dei prestiti (compresi qu
 `                                                       AND p.ID_L = l.ID_LIBRO`  
 
 $$
-JOIN\_PSL \leftarrow ~( Prestito )\Join_{~p.MATRICOLA = s.MATRICOLA}( Studente ) \Join_{~p.ID\_L = l.ID\_LIBRO} (Libro) \\
+\rho_p(Prestito),~~ \rho_s(Studente), ~~ \rho_l(Libro) \\
+JOIN\_PSL \leftarrow ~( Prestito )\Join_{~p.MATRICOLA = s.MATRICOLA~~\wedge~~ s.MATRICOLA=matricola}( Studente ) \Join_{~p.ID\_L = l.ID\_LIBRO} (Libro) \\
 OUT \leftarrow \pi_{<~p.ID\_PRESTITO,~p.DATA\_USCITA,~s.COGNOME,~l.ISBN,~l.ID\_LIBRO~>} (JOIN\_PSL)
 $$
 
@@ -122,8 +139,9 @@ Consultare lo storico dei prestiti comprese le informazioni (sintetiche - nome, 
 `WHERE p.MATRICOLA_S = s.MATRICOLA`  
 
 $$
+\rho_p(Prestito),~~ \rho_s(Studente) \\
 PRESTITI\_UTENTE \leftarrow  (Prestito)~\Join_{~<~p.MATRICOLA = s.MATRICOLA~>} (Studente) \\ 
-OUT \leftarrow ~\pi_{<~p.ID\_PRESTITO,p.MATRICOLA_S,~p.DATA\_USCITA,~s.NOME,~s.COGNOME >} (PRESTITI\_UTENTE)
+OUT \leftarrow ~\pi_{<~p.ID\_PRESTITO,p.MATRICOLA\_S,~p.DATA\_USCITA,~s.NOME,~s.COGNOME >} (PRESTITI\_UTENTE)
 $$
 
 <br>
@@ -147,13 +165,18 @@ Statistiche  _(qui abbiamo deciso di utilizzare le join ( per completezza ))_
 
 __[8.a]__ Numero di libri pubblicati in un determinato anno.
 
-> `SELECT i.ANNO_PUBBLICAZIONE AS anno, COUNT(l.ID_LIBRO) AS numero_libri`  
-`                FROM Libro AS l, ISBN_Info AS i `  
-`                    WHERE i.ISBN = l.ISBN AND i.ANNO_PUBBLICAZIONE`  
-`                        GROUP BY i.ANNO_PUBBLICAZIONE ` 
+> `SELECT i.ANNO_PUBBLICAZIONE AS anno, COUNT(i.ISBN) AS numero_libri `  
+`FROM ISBN_Info AS i`  
+`GROUP BY i.ANNO_PUBBLICAZIONE`  
+`ORDER BY i.ANNO_PUBBLICAZIONE`  
 
 $$
+OUT \leftarrow ANNO\_PUBBLICAZIONE~~\mathcal{F}~ANNO\_PUBBLICAZIONE,~COUNT_{ISBN} (\pi_{<ANNO\_PUBBLICAZIONE,~ISBN>}(ISBN\_Info)) 
+\\ oppure~~(~penso  ~sia~la~stessa~cosa) \\
+OUT \leftarrow ANNO\_PUBBLICAZIONE~~\mathcal{F}~ANNO\_PUBBLICAZIONE,~COUNT_{ISBN} (ISBN\_INFO)
 $$
+
+
 <br>
 
 __[8.b]__ Numero di prestiti effettuati in una determinata succursale.  
@@ -162,7 +185,13 @@ __[8.b]__ Numero di prestiti effettuati in una determinata succursale.
 `FROM Succursale s`  
 `LEFT JOIN Libro l ON s.ID_SUCC = l.ID_S`  
 `LEFT JOIN Prestito p ON l.ID_LIBRO = p.ID_L`  
-`GROUP BY s.NOME, s.ID_SUCC`  
+`GROUP BY s.ID_SUCC` 
+
+$$
+JOIN\_LSP \leftarrow (Succursale)\Join_{LEFT<~s.ID\_SUCC=l.ID\_S~>}(Libro)\Join_{LEFT<~l.ID\_LIBRO=p.ID\_L~>}(Prestito) \\
+%\pi_{<s.NOME, >}(JOIN\_LSP)
+OUT \leftarrow s.ID\_SUCC~~\mathcal{F}~s.NOME,~COUNT_{p.ID\_PRESTITO}~(JOIN\_LSP)
+$$
 
 La __prima LEFT JOIN__ Questa parte esegue una LEFT JOIN tra Succursale e Libro (_sulle colonne ID_S e ID_SUCC rispettivamente_ ). Questa unione combina i dati delle succursali con i libri corrispondenti nella tabella "Libro". 
 - Se non ci sono libri corrispondenti, la succursale sarà comunque inclusa nel risultato.
@@ -174,19 +203,22 @@ La __seconda LEFT JOIN__  Combina i dati di Libro con le istanze di Prestito cor
 Infinie la __GROUP_BY__ raggruppa il risultato per NOME (della succursale) e ID_SUCC.  
 Possiamo quidni usare __COUNT__ per calcolare il numero di prestiti per ogni succursale.
 
-$$
-$$
+
 <br>
 
 
 __[8.c]__ Numero di libri pubblicati per autore.  
 
-> `SELECT A.ID_AUTORE, A.NOME AS nome, A.COGNOME AS cognome, COUNT(L.ID_LIBRO) AS numero_libri `  
-`FROM Autore A`  
-`LEFT JOIN Scritto_Da SD ON A.ID_AUTORE = SD.ID_A`  
-`LEFT JOIN Libro L ON SD.ID_L = L.ID_LIBRO`  
-`GROUP BY A.ID_AUTORE, A.NOME, A.COGNOME`  
+> `SELECT a.ID_AUTORE, a.NOME AS nome, a.COGNOME AS cognome, COUNT(L.ID_LIBRO) AS numero_libri `  
+`FROM Autore a`  
+`JOIN Scritto_Da sd ON a.ID_AUTORE = sd.ID_A`  
+`JOIN Libro l ON SD.ID_L = l.ID_LIBRO`  
+`GROUP BY a.ID_AUTORE`  
 
+$$
+JOIN\_ASL \leftarrow (Autore)\Join_{LEFT<~A.ID\_AUTORE = SD.ID\_A~>}(Scritto\_Da)\Join_{LEFT<~l.ID\_L=p.ID\_LIBRO~>}(Libro) \\
+OUT \leftarrow ID\_AUTORE~~\mathcal{F}~ID\_AUORE,~NOME,~COGNOME,~COUNT_{ID\_LIBRO} (JOIN\_ASL)
+$$
 
 La __prima LEFT JOIN__ collega la tabella "Autore" con la tabella "Scritto_Da" utilizzando la condizione __A.ID_AUTORE = SD.ID_A__ . Questo collegamento ci consente di associare gli autori ai loro scritti.   
 La __seconda "LEFT JOIN"__ (_tra ScrittoDa e Libro_) ci consente di associare ogni libro con i corrispettivi scrittori.
@@ -198,5 +230,3 @@ Posso ora calcolare il conteggio dei libri scritti da ciascun autore tramite la 
 
 - Gli autori che non hanno scritto alcun libro compariranno ugualmente nel risultato _( con numero libri = 0 )_.  
 
-$$
-$$
