@@ -19,7 +19,7 @@
 
     $sql= "SELECT NOME, COGNOME, ID_AUTORE, DATA_NASCITA, PAESE_NASCITA
                 FROM Autore
-                    WHERE NOME LIKE '$nome_a%' AND COGNOME LIKE '$cognome_a%' ";
+                    WHERE NOME LIKE '%$nome_a%' AND COGNOME LIKE '%$cognome_a%' ";
 
     // Nel caso venga specificato anche il paese di nascita si aggiunge una clausola alla query 
     if ( $paese_a != '__all__')                            
