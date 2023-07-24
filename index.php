@@ -154,6 +154,7 @@
 
 			<h2>Ranking top 5 succursali per numero di libri in una lingua specificata</h2>
 			<form action ="succursale-lingua.php" method="post">
+				<label>2. Ranking top 5 succursali per numero di libri in una lingua specificata</label>
 				<select name="lingua">
 					<?php
 					while ($row = mysqli_fetch_array($result_lingua)) 

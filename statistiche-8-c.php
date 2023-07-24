@@ -5,13 +5,12 @@
 include_once('connessione.php'); 
 
 
-
 // c. Numero di libri pubblicati per autore.
         $sql = "SELECT A.ID_AUTORE, A.NOME AS nome, A.COGNOME AS cognome, COUNT(L.ID_LIBRO) AS numero_libri 
                     FROM Autore A
-                        LEFT JOIN Scritto_Da SD ON A.ID_AUTORE = SD.ID_A
-                            LEFT JOIN Libro L ON SD.ID_L = L.ID_LIBRO
-                                GROUP BY A.ID_AUTORE, A.NOME, A.COGNOME";
+                        JOIN Scritto_Da SD ON A.ID_AUTORE = SD.ID_A
+                            JOIN Libro L ON SD.ID_L = L.ID_LIBRO
+                                GROUP BY A.ID_AUTORE";
 
     $result = mysqli_query($link, $sql);
     if (!$result) {

@@ -4,11 +4,10 @@
     include_once('connessione.php'); 
 
 // a. Numero di libri pubblicati in un determinato anno.
-
-    $sql = "SELECT i.ANNO_PUBBLICAZIONE AS anno, COUNT(l.ID_LIBRO) AS numero_libri
-                FROM Libro AS l, ISBN_Info AS i 
-                    WHERE i.ISBN = l.ISBN AND i.ANNO_PUBBLICAZIONE
-                        GROUP BY i.ANNO_PUBBLICAZIONE";
+    $sql = "SELECT i.ANNO_PUBBLICAZIONE AS anno, COUNT(i.ISBN) AS numero_libri 
+                FROM ISBN_Info AS i
+                    GROUP BY i.ANNO_PUBBLICAZIONE
+                    ORDER BY i.ANNO_PUBBLICAZIONE";
 
     $result = mysqli_query($link, $sql);
     if (!$result) {
