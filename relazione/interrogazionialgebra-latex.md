@@ -9,6 +9,11 @@ __Enrico Albertini__ [165672]
 
 ## 1. Definizione del problema
 
+Ci è stata commissionata la costruzione di un sistema di gestione di una biblioteca, formata da una serie di succursali dell' università di ferrara.
+Ciò è stato implementato in html/php per l'interfaccia web dinamica che dialoga con un database MySQL contenente i dati. 
+
+
+
 
 
 ## 2. Modello ER
