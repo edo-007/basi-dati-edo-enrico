@@ -27,18 +27,18 @@ CREATE TABLE ISBN_Info (
 
 );
 
-
--- (3,'Titolo del libro','068254989-4','English',2014,8);
 CREATE TABLE Libro (
     
     ID_LIBRO       		INT,
 
     ISBN                CHAR(11),
     ID_S 				INT,
-    FOREIGN KEY(ID_S) REFERENCES Succursale(ID_SUCC),
-    FOREIGN KEY(ISBN) REFERENCES ISBN_Info(ISBN),
+    
+    FOREIGN KEY(ID_S) REFERENCES SUCCURSALE(ID_SUCC) ON DELETE SET NULL ON UPDATE CASCADE,
+    FOREIGN KEY(ISBN) REFERENCES ISBN_Info(ISBN) ON DELETE CASCADE,
     
     PRIMARY KEY (ID_LIBRO)
+
 );
 
 
@@ -64,8 +64,8 @@ CREATE TABLE Scritto_Da (
     ID_L	            INT,			-- Chiave esterna su Libro
     ID_A	            INT,			-- Chiave esterna su autore
 
-    FOREIGN KEY (ID_L) REFERENCES Libro(ID_LIBRO),
-    FOREIGN KEY (ID_A) REFERENCES Autore(ID_AUTORE),
+    FOREIGN KEY (ID_L) REFERENCES Libro(ID_LIBRO) ON DELETE CASCADE ON UPDATE CASCADE,
+    FOREIGN KEY (ID_A) REFERENCES Autore(ID_AUTORE) ON DELETE SET NULL,
     
     PRIMARY KEY (ID_REL)
 );

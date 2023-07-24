@@ -2,51 +2,34 @@
 
 # Relazione Progetto Basi dati
 
-Edoardo Ponsanesi 166205  
-Enrico Albertini y636728
-
-
-<!-- /code_chunk_output -->
-
-
-&nbsp;   
-
-&nbsp;   
-
-&nbsp;   
-
-
-
+__Edoardo Ponsanesi__ [166205]  
+__Enrico Albertini__ [165672]
 
 
 
 ## 1. Definizione del problema
 
-Immagine Modello ER
-
-
-
-Immagine schema Pre-Normalizzazione
-
-
-
-I
-
-
-
-
-
 
 
 ## 2. Modello ER
      
-![Modello ER](/relazione/immagini/image1.tmp)
+![Modello ER](/relazione/immagini/image.png)
 
 
 ## 3. Modello relazionale in terza forma normale 
 
 ![Modello ER](/relazione/immagini/image2.tmp)
+
+Abbiamo ritenuto opportuno riportare lo schema che sarebbe emerso naturalmente da un’osservazione non articolata dal punto di vista dei database, quindi non al corrente dei rischi di design legati alle dipendenze funzionali. LE DIPENDENZE FUNZIONALI SONO MOSTRATE SECONDO I COLORI DEL DIAGRAMMA, EVITIAMO DI RIPETERLE IN FORMA TESTUALE QUA PER EVITARE INUTILI RIDONDANZE.
+Bisogna notare che:
+- In PRESTITO:
+DataScadenza è T.F.D.(Transitivamente Funzionalmente Dipendente) da ID_Prestito, viene inclusa nello schema perché è concettualmente un campo di prestito, ma nella
+realtà non viola la terza forma normale perché non è un campo effettivo, ma viene calcolato al bisogno da DataUscita(unico dei due mantenuto effettivamente nel DB)
+
 ![Modello ER](/relazione/immagini/image3.tmp)
+
+Abbiamo dunque rimosso tutte le __D.F.T.__ (_Dipendenze Funzionali Transitive_), ottenendo lo schema in __3NF__. 
+A eccezione del CAP(funzionalmente dipendente da Via,Civico,Città ), in un contesto implementativo generale), QUESTO E’ VOLUTO COME SCELTA DI DESIGN, IN FUNZIONE DEL DOMINIO DI APPLICAZIONE DEL PRODOTTO RICHIESTO. Infatti realizzare schema, compliant alla non-DFT del CAP, avrebbe implicato di avere un database con tutte le vie della città di Ferrara, cosa che non è stata fornita. Quindi tecnicamente il CAP è solo un’altro attributo che va a costituire l’attributo composto dell’indirizzo con CAP.
 
     
 
@@ -64,8 +47,8 @@ Ricerca di un libro inserendo il titolo (anche parziale) - nel caso in cui nessu
 
 $$ 
 \rho_i (ISBN\_Info),~~ \rho_l (Libro),~~ \rho_s (Succursale) \\
-\pi_{(ISBN,TITOLO,LINGUA,NOME)} (
-    ISBN\_Info \Join_{~<i.ISBN = l.ISBN~\wedge~i.TITOLO = nome\_libro>} Libro \Join_{~<l.ID\_S = s.ID\_SUCC>} Succursale
+OUT \leftarrow \pi_{(ISBN,TITOLO,LINGUA,NOME)} (
+    ISBN\_Info \Join_{~<i.ISBN = l.ISBN~\wedge~i.TITOLO = \%nome\_libro\%>} Libro \Join_{~<l.ID\_S = s.ID\_SUCC>} Succursale
 )
 $$ 
 
@@ -75,14 +58,15 @@ __[2]__ Visualizzazione di tutti i libri di un determinato autore, eventualmente
 > ` SELECT i.TITOLO, i.ANNO_PUBBLICAZIONE, i.LINGUA, l.ISBN `  
 ` FROM Libro AS l, ISBN_Info AS i`  
 ` WHERE l.ISBN = i.ISBN `  
-` AND l.ID_LIBRO IN ( SELECT ID_L FROM Scritto_Da WHERE ID_A = $id_autore)`  
-` ORDER BY ANNO_PUBBLICAZIONE";`
+` AND l.ID_LIBRO IN ( SELECT sd.ID_L FROM Scritto_Da AS sd WHERE sd.ID_A = $id_autore)`  
+` ORDER BY i.ANNO_PUBBLICAZIONE";`
 
 $$
-\rho_l(Libro),~~ \rho_l(Libro) \\
-LIBRI\_AUTORE \leftarrow \pi_{<~ID\_L~>} (\sigma_{<~ID\_A~=~id\_autore~>} (Scritto\_Da)) \\  
-INFO\_LIBRI \leftarrow Libro \Join_{~<~l.ISBN=i.ISBN~>} ISBN\_Info \Join_{<~ID\_L~=~ID\_LIBRO~>} LIBRI\_AUTORE \\
-OUT \leftarrow \pi_{<~TITOLO,~ANNO\_PUBBLICAZIONE,~LINGUA,~ISBN~>} (INFO\_LIBRI) \\
+\rho_l(Libro),~~ \rho_i(ISBN\_Info), ~~ \rho_{sd}(Scritto\_Da) \\
+\rho_{da\_cercare}(~\pi_{<~sd.ID\_L~>} (\sigma_{<~sd.ID\_A~=~id\_autore~>} (Scritto\_Da))~)\\  
+-\\
+INFO\_LIBRI \leftarrow ISBN\_Info \Join_{~<~l.ISBN=i.ISBN~>} Libro \Join_{<~l.ID\_LIBRO~=~da\_cercare.ID\_L~>} LIBRI\_AUTORE \\
+OUT \leftarrow \pi_{<~i.TITOLO,~i.ANNO\_PUBBLICAZIONE,~i.LINGUA,~i.ISBN~>} (INFO\_LIBRI) \\
 $$
 <br>
 
@@ -91,11 +75,11 @@ Ricerca degli autori inserendo uno o più parametri (anche parziali), in forma l
 
 > `SELECT NOME, COGNOME, ID_AUTORE, DATA_NASCITA, PAESE_NASCITA`  
 `FROM Autore`  
-`WHERE NOME LIKE '$nome_a%' AND COGNOME LIKE '$cognome_a%'` 
+`WHERE NOME LIKE '%$nome_a%' AND COGNOME LIKE '%$cognome_a%'` 
 `AND PAESE_NASCITA = $paese`  
 
 $$
-AUTORI\_RICHIESTI \leftarrow \sigma_{<~NOME=nome\_a~\wedge~COGNOME= cognome\_a~\wedge~PAESE\_NASCITA = paese~>}(~Autore~)\\ 
+AUTORI\_RICHIESTI \leftarrow \sigma_{<~NOME=\%nome\_a\%~\wedge~COGNOME= \%cognome\_a\%~\wedge~PAESE\_NASCITA = paese~>}(~Autore~)\\ 
 OUT \leftarrow \pi_{<NOME,~COGNOME,~ID\_AUTORE,~DATA\_NASCITA,~PAESE\_NASCITA>}( AUTORI\_RICHIESTI) \\
 $$
 
@@ -158,6 +142,7 @@ IN\_RANGE \leftarrow \sigma_{~<~ DATA\_USCITA~\ge ~data\_inizio ~~\wedge~~DATA\_
 OUT \leftarrow \pi_{<~ID\_PRESTITO, MATRICOLA\_S, DATA\_USCITA~>} (IN\_RANGE)
 $$
 
+Vista la necessità di istruzioni condizionali per la costruzione della query che soddisfi la richiesta, mostriamo solo il caso base.
 <br>
 
 __[8]__   
@@ -171,9 +156,8 @@ __[8.a]__ Numero di libri pubblicati in un determinato anno.
 `ORDER BY i.ANNO_PUBBLICAZIONE`  
 
 $$
-OUT \leftarrow ANNO\_PUBBLICAZIONE~~\mathcal{F}~ANNO\_PUBBLICAZIONE,~COUNT_{ISBN} (\pi_{<ANNO\_PUBBLICAZIONE,~ISBN>}(ISBN\_Info)) 
-\\ oppure~~(~penso  ~sia~la~stessa~cosa) \\
-OUT \leftarrow ANNO\_PUBBLICAZIONE~~\mathcal{F}~ANNO\_PUBBLICAZIONE,~COUNT_{ISBN} (ISBN\_INFO)
+OUT \leftarrow ANNO\_PUBBLICAZIONE~~\mathcal{F}~COUNT_{ISBN} (\pi_{<ANNO\_PUBBLICAZIONE,~ISBN>}(ISBN\_Info)) \\-\\
+% OUT \leftarrow ANNO\_PUBBLICAZIONE~~\mathcal{F}~ANNO\_PUBBLICAZIONE,~COUNT_{ISBN} (ISBN\_INFO)
 $$
 
 
@@ -190,18 +174,8 @@ __[8.b]__ Numero di prestiti effettuati in una determinata succursale.
 $$
 JOIN\_LSP \leftarrow (Succursale)\Join_{LEFT<~s.ID\_SUCC=l.ID\_S~>}(Libro)\Join_{LEFT<~l.ID\_LIBRO=p.ID\_L~>}(Prestito) \\
 %\pi_{<s.NOME, >}(JOIN\_LSP)
-OUT \leftarrow s.ID\_SUCC~~\mathcal{F}~s.NOME,~COUNT_{p.ID\_PRESTITO}~(JOIN\_LSP)
+OUT \leftarrow s.ID\_SUCC~~\mathcal{F}~COUNT_{p.ID\_PRESTITO}~(JOIN\_LSP)
 $$
-
-La __prima LEFT JOIN__ Questa parte esegue una LEFT JOIN tra Succursale e Libro (_sulle colonne ID_S e ID_SUCC rispettivamente_ ). Questa unione combina i dati delle succursali con i libri corrispondenti nella tabella "Libro". 
-- Se non ci sono libri corrispondenti, la succursale sarà comunque inclusa nel risultato.
-
-La __seconda LEFT JOIN__  Combina i dati di Libro con le istanze di Prestito corrispondente. 
-
-- Se non ci sono prestiti corrispondenti per un libro, il libro sarà comunque incluso nel risultato.
-
-Infinie la __GROUP_BY__ raggruppa il risultato per NOME (della succursale) e ID_SUCC.  
-Possiamo quidni usare __COUNT__ per calcolare il numero di prestiti per ogni succursale.
 
 
 <br>
@@ -216,17 +190,9 @@ __[8.c]__ Numero di libri pubblicati per autore.
 `GROUP BY a.ID_AUTORE`  
 
 $$
-JOIN\_ASL \leftarrow (Autore)\Join_{LEFT<~A.ID\_AUTORE = SD.ID\_A~>}(Scritto\_Da)\Join_{LEFT<~l.ID\_L=p.ID\_LIBRO~>}(Libro) \\
-OUT \leftarrow ID\_AUTORE~~\mathcal{F}~ID\_AUORE,~NOME,~COGNOME,~COUNT_{ID\_LIBRO} (JOIN\_ASL)
+\rho_a(Autore),~~ \rho_{sd}(Scritto\_Da),~~ \rho_l(Libro) \\
+JOIN\_ASL \leftarrow (Autore)\Join_{<~a.ID\_AUTORE = sd.ID\_A~>}(Scritto\_Da)\Join_{<~l.ID\_L=p.ID\_LIBRO~>}(Libro) \\
+OUT \leftarrow ID\_AUTORE~~\mathcal{F}~COUNT_{l.ID\_L} (JOIN\_ASL)
 $$
 
-La __prima LEFT JOIN__ collega la tabella "Autore" con la tabella "Scritto_Da" utilizzando la condizione __A.ID_AUTORE = SD.ID_A__ . Questo collegamento ci consente di associare gli autori ai loro scritti.   
-La __seconda "LEFT JOIN"__ (_tra ScrittoDa e Libro_) ci consente di associare ogni libro con i corrispettivi scrittori.
-
-La clausola __GROUP BY__ raggruppa i risultati in base all'ID dell'autore, al nome e al cognome dell'autore. 
-Posso ora calcolare il conteggio dei libri scritti da ciascun autore tramite la funzione di aggregazione __COUNT__.
-
-- Utilizziamo la __left join__ invece che la __join naturale__ in modo tale che __tutti__ gli autori vengano inclusi nella query( _anche se non hanno scritto alcun libro_ ).  
-
-- Gli autori che non hanno scritto alcun libro compariranno ugualmente nel risultato _( con numero libri = 0 )_.  
 
