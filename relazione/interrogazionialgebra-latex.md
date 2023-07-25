@@ -25,7 +25,8 @@ Ciò è stato implementato in html/php per l'interfaccia web dinamica che dialog
 
 ![Modello ER](/relazione/immagini/image2.tmp)
 
-Abbiamo ritenuto opportuno riportare lo schema che sarebbe emerso naturalmente da un’osservazione non articolata dal punto di vista dei database, quindi non al corrente dei rischi di design legati alle dipendenze funzionali. LE DIPENDENZE FUNZIONALI SONO MOSTRATE SECONDO I COLORI DEL DIAGRAMMA, EVITIAMO DI RIPETERLE IN FORMA TESTUALE QUA PER EVITARE INUTILI RIDONDANZE.
+Abbiamo ritenuto opportuno riportare lo schema che sarebbe emerso naturalmente da un’osservazione non approfondita dei dati formiti, costruto senza considerare i rischi di design legati alle dipendenze funzionali presenti. Tali __dipendenze funzionali__ sono mostrate tramite diverse colorazioni del diagramma, evitiamo quidni di ripeterle in forma testuale per evitare inutili ridondanze.
+
 Bisogna notare che:
 - In PRESTITO:
 DataScadenza è T.F.D.(Transitivamente Funzionalmente Dipendente) da ID_Prestito, viene inclusa nello schema perché è concettualmente un campo di prestito, ma nella
@@ -34,7 +35,7 @@ realtà non viola la terza forma normale perché non è un campo effettivo, ma v
 ![Modello ER](/relazione/immagini/image3.tmp)
 
 Abbiamo dunque rimosso tutte le __D.F.T.__ (_Dipendenze Funzionali Transitive_), ottenendo lo schema in __3NF__. 
-A eccezione del CAP(funzionalmente dipendente da Via,Civico,Città ), in un contesto implementativo generale), QUESTO E’ VOLUTO COME SCELTA DI DESIGN, IN FUNZIONE DEL DOMINIO DI APPLICAZIONE DEL PRODOTTO RICHIESTO. Infatti realizzare schema, compliant alla non-DFT del CAP, avrebbe implicato di avere un database con tutte le vie della città di Ferrara, cosa che non è stata fornita. Quindi tecnicamente il CAP è solo un’altro attributo che va a costituire l’attributo composto dell’indirizzo con CAP.
+A eccezione del CAP(funzionalmente dipendente da Via,Civico,Città ) ). Questo e’ voluto come scelta di design, in funzione del dominio di applicazione. Infatti realizzare lo schema, compliant alla non-DFT del CAP, avrebbe implicato di avere un database con tutte le vie della città di Ferrara, cosa che non è stata fornita. Quindi tecnicamente il CAP è solo un’altro attributo che va a costituire l’attributo composto dell’indirizzo.
 
     
 
@@ -57,6 +58,8 @@ OUT \leftarrow \pi_{(ISBN,TITOLO,LINGUA,NOME)} (
 )
 $$ 
 
+<p style="page-break-after: always;">&nbsp;</p>
+
 __[2]__ Visualizzazione di tutti i libri di un determinato autore, eventualmente suddivisi per anno di pubblicazione.
 
 
@@ -68,9 +71,10 @@ __[2]__ Visualizzazione di tutti i libri di un determinato autore, eventualmente
 
 $$
 \rho_l(Libro),~~ \rho_i(ISBN\_Info), ~~ \rho_{sd}(Scritto\_Da) \\
-\rho_{da\_cercare}(~\pi_{<~sd.ID\_L~>} (\sigma_{<~sd.ID\_A~=~id\_autore~>} (Scritto\_Da))~)\\  
+{DA\_CERCARE} \leftarrow ~\pi_{<~sd.ID\_L~>} (\sigma_{<~sd.ID\_A~=~id\_autore~>} (Scritto\_Da))\\  
+\rho_{dc}(DA\_CERCARE) \\
 -\\
-INFO\_LIBRI \leftarrow ISBN\_Info \Join_{~<~l.ISBN=i.ISBN~>} Libro \Join_{<~l.ID\_LIBRO~=~da\_cercare.ID\_L~>} LIBRI\_AUTORE \\
+INFO\_LIBRI \leftarrow ISBN\_Info \Join_{~<~l.ISBN=i.ISBN~>} ( \sigma_{<~l.ID\_LIBRO~\in~dc.ID\_L~>} (DA\_CERCARE~)) \\
 OUT \leftarrow \pi_{<~i.TITOLO,~i.ANNO\_PUBBLICAZIONE,~i.LINGUA,~i.ISBN~>} (INFO\_LIBRI) \\
 $$
 <br>
@@ -147,7 +151,7 @@ IN\_RANGE \leftarrow \sigma_{~<~ DATA\_USCITA~\ge ~data\_inizio ~~\wedge~~DATA\_
 OUT \leftarrow \pi_{<~ID\_PRESTITO, MATRICOLA\_S, DATA\_USCITA~>} (IN\_RANGE)
 $$
 
-Vista la necessità di istruzioni condizionali per la costruzione della query che soddisfi la richiesta, mostriamo solo il caso base.
+_Vista la necessità di istruzioni condizionali per la costruzione della query che soddisfi la richiesta, mostriamo solo il caso base._
 <br>
 
 __[8]__   

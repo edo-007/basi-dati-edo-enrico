@@ -5,12 +5,11 @@
 
 // succursali ordinate per numero di libri in una determinata lingua
     $lingua =$_POST["lingua"];
-    echo "<h1>$lingua</h1>";
-    $sql = "select S.NOME, S.VIA, S.CIVICO, COUNT(L.ID_LIBRO) as NR_LIBRI
-	    FROM Succursale as S, Libro as L, ISBN_Info I
-		    WHERE L.ID_S = S.ID_SUCC AND I.ISBN = L.ISBN AND I.LINGUA = \"$lingua\"
-			    GROUP BY S.ID_SUCC
-                    ORDER  BY NR_LIBRI DESC";
+    $sql = "SELECT S.NOME, S.VIA, S.CIVICO, COUNT(L.ID_LIBRO) as NR_LIBRI
+	            FROM Succursale as S, Libro as L, ISBN_Info I
+		            WHERE L.ID_S = S.ID_SUCC AND I.ISBN = L.ISBN AND I.LINGUA = \"$lingua\"
+			            GROUP BY S.ID_SUCC
+                            ORDER  BY NR_LIBRI DESC";
 
     $result = mysqli_query($link, $sql);
     if (!$result) {

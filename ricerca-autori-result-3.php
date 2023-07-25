@@ -4,11 +4,6 @@
     $nome_a = $_POST['nome_autore'];		
     $cognome_a = $_POST['cognome_autore'];
     $paese_a = $_POST['paese_autore'];
-
-    // AND PAESE_NASCITA = '$paese_a'
-    // echo $nome_a." (nome) <br>";
-    // echo $cognome_a." (cognome) <br>";
-    // echo $paese_a." (paese) <br>";
     
     $empty_input = 0;
     if ( empty($nome_a) && empty($cognome_a) && ( $paese_a == '__all__') )  {

@@ -34,18 +34,14 @@ CREATE TABLE Libro (
     ISBN                CHAR(11),
     ID_S 				INT,
     
-    #visto che può essere rimossa una succursale, ma il libro continuerebbe a esistere
+    -- visto che può essere rimossa una succursale, ma il libro continuerebbe a esistere
     FOREIGN KEY(ID_S) REFERENCES Succursale(ID_SUCC) ON DELETE SET NULL ON UPDATE CASCADE,
+
     FOREIGN KEY(ISBN) REFERENCES ISBN_Info(ISBN) ON DELETE CASCADE ON UPDATE CASCADE,
-    
     PRIMARY KEY (ID_LIBRO)
 
 );
 
-
-
-
--- (8,'Raquel','Semered',1972-03-21,'Bloomington')
 CREATE TABLE Autore (
     
     ID_AUTORE                 INT,
@@ -66,15 +62,12 @@ CREATE TABLE Scritto_Da (
     ID_A	            INT,			-- Chiave esterna su autore
 
     FOREIGN KEY (ID_L) REFERENCES Libro(ID_LIBRO) ON DELETE CASCADE ON UPDATE CASCADE,
-    # un libro non smette di esistere se per sbaglio qualcuno elimina un autore, il libro è il portagonista della biblioteca, 
-    # l_autore una informazione su di esso
-    FOREIGN KEY (ID_A) REFERENCES Autore(ID_AUTORE) ON DELETE SET NULL ON UPDATE CASCADE,
     
+    -- un libro non smette di esistere se per sbaglio qualcuno elimina un autore, il libro è il portagonista della biblioteca, 
+    -- l_autore una informazione su di esso
+    FOREIGN KEY (ID_A) REFERENCES Autore(ID_AUTORE) ON DELETE SET NULL ON UPDATE CASCADE,
     PRIMARY KEY (ID_REL)
 );
-
- -- (6,'Matematica e informatica,Via Machiavelli',30,44121,'Ferrara')
-
 
 
 CREATE TABLE Studente (

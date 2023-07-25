@@ -47,8 +47,6 @@
         <meta charset="utf-8">
 		        
 		<title>Storico Prestiti</title>
-        </table>                </table>        
-
 
 		<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/water.css@2/out/water.css">
 

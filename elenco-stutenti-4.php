@@ -25,7 +25,7 @@
     <head>
         <meta charset="utf-8">
 		        
-		<title>Cerca Libro</title>
+		<title>Studenti</title>
 		
 		<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/water.css@2/out/water.css">
 
